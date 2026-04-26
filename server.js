@@ -180,7 +180,9 @@ async function handlePaymentVerify(req, res) {
 
     const data = await response.json();
     if (!response.ok) {
-      return send(res, 400, { error: '결제 검증 실패', detail: data });
+      const msg = data?.message || data?.code || JSON.stringify(data);
+      console.error('[Toss 결제 오류]', JSON.stringify(data));
+      return send(res, 400, { error: msg, detail: data });
     }
 
     send(res, 200, { success: true, orderId: data.orderId });
