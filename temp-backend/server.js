@@ -739,20 +739,6 @@ async function handleChangeAnalysis(req, res) {
     },
     netGain: { min: netGainMin, max: netGainMax },
     roi: { min: roiMin, max: roiMax },
-    // 감정평가사 협업 필드 — 추후 어드민에서 업데이트
-    appraiserReview: {
-      status: 'pending',          // pending | in_review | completed
-      reviewer: null,             // { name, licenseNo, firm }
-      reviewedAt: null,
-      opinion: null,              // 감정평가사 공식 의견
-      adjustedValue: null,        // 감정평가사 수정 가격
-      riskFactors: [],            // 현장 조사 위험 요인
-      legalChecks: [],            // 인허가 확인 사항
-      recommendations: [],        // 추천 조치
-      reportFileUrl: null,        // 감정평가서 PDF URL
-      validUntil: null,
-      note: '감정평가사 검토 완료 시 이 항목이 업데이트됩니다.',
-    },
     disclaimer: '본 분석은 공공데이터 기반 자동 추정치로, 법적 효력이 있는 공식 감정평가서가 아닙니다. 개발 인허가 진행 전 반드시 공인 감정평가사 및 관련 전문가의 현장 조사와 의견을 받으십시오.',
   });
 }

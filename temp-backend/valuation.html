@@ -748,74 +748,6 @@ input[type="text"]:focus, select:focus {
 .dev-range .label { color: var(--ink-light); font-weight: 600; }
 .dev-range .range-val { font-weight: 700; color: var(--warn); }
 
-/* 감정평가사 협업 카드 */
-.appraiser-card {
-  border-color: rgba(196,164,90,.3);
-  background: linear-gradient(to bottom, #FFFBF2, var(--white));
-}
-.appraiser-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 1rem;
-}
-.appraiser-icon {
-  width: 40px; height: 40px;
-  background: rgba(196,164,90,.12);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem;
-}
-.appraiser-title { font-size: 0.92rem; font-weight: 700; color: var(--ink); }
-.appraiser-subtitle { font-size: 0.75rem; color: var(--ink-light); }
-.appraiser-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: rgba(176,122,26,.1);
-  color: var(--warn);
-  border: 1px solid rgba(176,122,26,.2);
-  border-radius: 20px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 3px 10px;
-  margin-bottom: 1rem;
-}
-.appraiser-pending-items {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 1rem;
-}
-@media (max-width: 460px) { .appraiser-pending-items { grid-template-columns: 1fr; } }
-.pending-item {
-  background: var(--cream);
-  border-radius: var(--r);
-  padding: 0.8rem;
-}
-.pending-item .pi-label {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: var(--ink-light);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  display: block;
-  margin-bottom: 4px;
-}
-.pending-item .pi-val {
-  font-size: 0.82rem;
-  color: var(--ink-mid);
-  font-style: italic;
-}
-.appraiser-cta-note {
-  font-size: 0.78rem;
-  color: var(--ink-light);
-  line-height: 1.6;
-  padding: 0.8rem;
-  background: var(--cream);
-  border-radius: var(--r);
-  border-left: 3px solid var(--ochre);
-}
 
 .source-note {
   font-size: 0.72rem;
@@ -1104,43 +1036,6 @@ input[type="text"]:focus, select:focus {
         <div class="dev-range">
           <span class="label">총 개발비용 추정</span>
           <span class="range-val" id="cr-cost-range">—</span>
-        </div>
-      </div>
-
-      <!-- 감정평가사 협업 카드 -->
-      <p class="section-title">감정평가사 검토 의견</p>
-      <div class="appraiser-card">
-        <div class="appraiser-header">
-          <div class="appraiser-icon">⚖</div>
-          <div>
-            <div class="appraiser-title">전문가 검토 의견</div>
-            <div class="appraiser-subtitle" id="cr-appraiser-reviewer">검토 감정평가사 미배정</div>
-          </div>
-        </div>
-        <div class="appraiser-status" id="cr-appraiser-status">
-          ● 검토 대기 중
-        </div>
-        <div class="appraiser-pending-items">
-          <div class="pending-item">
-            <span class="pi-label">공식 감정가</span>
-            <span class="pi-val" id="cr-adj-value">검토 후 업데이트</span>
-          </div>
-          <div class="pending-item">
-            <span class="pi-label">현장 위험요인</span>
-            <span class="pi-val" id="cr-risk">검토 후 업데이트</span>
-          </div>
-          <div class="pending-item">
-            <span class="pi-label">인허가 확인사항</span>
-            <span class="pi-val" id="cr-legal">검토 후 업데이트</span>
-          </div>
-          <div class="pending-item">
-            <span class="pi-label">전문가 추천 조치</span>
-            <span class="pi-val" id="cr-recommend">검토 후 업데이트</span>
-          </div>
-        </div>
-        <div class="appraiser-cta-note" id="cr-appraiser-note">
-          본 분석 리포트는 감정평가사 검토 예정입니다. 검토 완료 시 공식 의견과 조정 가격이 업데이트됩니다.
-          인허가 진행 전 전문가 현장 조사를 반드시 병행하십시오.
         </div>
       </div>
 
@@ -1589,18 +1484,6 @@ function renderChangeResult(r) {
     .map(i => `<div class="dev-item">${i}</div>`).join('');
   document.getElementById('cr-cost-range').textContent =
     fmtFull(r.developmentCost.totalRange.min) + ' ~ ' + fmtFull(r.developmentCost.totalRange.max) + ' 원';
-
-  // 감정평가사 검토
-  const ap = r.appraiserReview;
-  const statusMap = { pending: '● 검토 대기 중', in_review: '◉ 검토 진행 중', completed: '✓ 검토 완료' };
-  document.getElementById('cr-appraiser-status').textContent   = statusMap[ap.status] || ap.status;
-  document.getElementById('cr-appraiser-reviewer').textContent = ap.reviewer
-    ? `${ap.reviewer.name} (${ap.reviewer.firm})` : '검토 감정평가사 미배정';
-  document.getElementById('cr-adj-value').textContent    = ap.adjustedValue ? fmtFull(ap.adjustedValue) + ' 원' : '검토 후 업데이트';
-  document.getElementById('cr-risk').textContent         = ap.riskFactors?.length ? ap.riskFactors.join(', ') : '검토 후 업데이트';
-  document.getElementById('cr-legal').textContent        = ap.legalChecks?.length ? ap.legalChecks.join(', ') : '검토 후 업데이트';
-  document.getElementById('cr-recommend').textContent    = ap.recommendations?.length ? ap.recommendations.join(', ') : '검토 후 업데이트';
-  document.getElementById('cr-appraiser-note').textContent = ap.note;
 
   document.getElementById('change-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
