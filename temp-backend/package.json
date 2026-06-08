@@ -1,0 +1,10 @@
+{
+  "name": "ddanggae",
+  "version": "1.0.0",
+  "description": "AI 토지 개발 타당성 분석 플랫폼",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  }
+}

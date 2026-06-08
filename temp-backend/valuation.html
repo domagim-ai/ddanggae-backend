@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>필지 감정평가 — 땅개</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Pretendard:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --forest: #1B3A2F;
+  --forest-mid: #2D5C47;
+  --forest-light: #3D7A60;
+  --ochre: #C4A45A;
+  --ochre-light: #E8D4A0;
+  --ochre-pale: #FAF5E8;
+  --cream: #F5F0E6;
+  --cream-dark: #EDE5D4;
+  --ink: #1A1F2E;
+  --ink-mid: #3A4152;
+  --ink-light: #6B7486;
+  --white: #FFFFFF;
+  --ok: #1E6B45;
+  --warn: #B07A1A;
+  --danger: #922B21;
+  --font-serif: 'Noto Serif KR', serif;
+  --font-sans: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  --r: 8px;
+  --r-lg: 16px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* NAV */
+nav {
+  background: var(--forest);
+  padding: 0 2rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-logo {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ochre);
+  text-decoration: none;
+}
+.nav-back {
+  font-size: 0.82rem;
+  color: var(--ochre-light);
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity .2s;
+}
+.nav-back:hover { opacity: 1; }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--forest) 0%, var(--forest-mid) 100%);
+  color: var(--white);
+  padding: 3.5rem 2rem 3rem;
+  text-align: center;
+}
+.hero-label {
+  display: inline-block;
+  background: rgba(196,164,90,.2);
+  border: 1px solid rgba(196,164,90,.4);
+  color: var(--ochre-light);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+}
+.hero p {
+  font-size: 0.92rem;
+  color: rgba(255,255,255,.7);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* MAIN */
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  background: var(--cream-dark);
+  border-radius: var(--r);
+  padding: 4px;
+  margin-bottom: 1.5rem;
+}
+.tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 10px;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--ink-light);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all .2s;
+}
+.tab-btn.active {
+  background: var(--white);
+  color: var(--forest);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,.12);
+}
+
+/* FORM */
+.form-card {
+  background: var(--white);
+  border-radius: var(--r-lg);
+  padding: 2rem;
+  box-shadow: 0 2px 16px rgba(27,58,47,.06);
+  border: 1px solid var(--cream-dark);
+}
+.form-group { margin-bottom: 1.2rem; }
+.form-group:last-child { margin-bottom: 0; }
+label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-mid);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+label .sub {
+  font-weight: 400;
+  color: var(--ink-light);
+  margin-left: 6px;
+}
+input[type="text"], select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--cream-dark);
+  border-radius: var(--r);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  color: var(--ink);
+  background: var(--white);
+  transition: border-color .2s, box-shadow .2s;
+  outline: none;
+}
+input[type="text"]:focus, select:focus {
+  border-color: var(--forest-light);
+  box-shadow: 0 0 0 3px rgba(61,122,96,.12);
+}
+.pnu-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: start;
+}
+.hint {
+  font-size: 0.78rem;
+  color: var(--ink-light);
+  margin-top: 5px;
+  line-height: 1.5;
+}
+.hint a { color: var(--forest-light); text-decoration: underline; }
+.land-type-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.radio-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--cream-dark);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: border-color .2s;
+  font-size: 0.88rem;
+  color: var(--ink-mid);
+}
+.radio-card input { accent-color: var(--forest); cursor: pointer; }
+.radio-card:has(input:checked) {
+  border-color: var(--forest-light);
+  background: var(--ochre-pale);
+  color: var(--forest);
+  font-weight: 600;
+}
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: var(--forest);
+  color: var(--white);
+  border: none;
+  border-radius: var(--r);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: background .2s, transform .1s;
+  letter-spacing: 0.02em;
+}
+.btn-primary:hover { background: var(--forest-mid); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* LOADING */
+#loading {
+  display: none;
+  text-align: center;
+  padding: 3rem 0;
+}
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--cream-dark);
+  border-top-color: var(--forest);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 1.2rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-steps { list-style: none; display: inline-block; text-align: left; }
+.loading-steps li {
+  font-size: 0.84rem;
+  color: var(--ink-light);
+  padding: 3px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.loading-steps li::before { content: '○'; color: var(--cream-dark); }
+.loading-steps li.done::before { content: '●'; color: var(--forest-light); }
+.loading-steps li.active::before { content: '◉'; color: var(--ochre); }
+
+/* ERROR */
+#error-box {
+  display: none;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: var(--r);
+  padding: 1rem 1.2rem;
+  color: var(--danger);
+  font-size: 0.88rem;
+  margin-top: 1rem;
+  line-height: 1.6;
+}
+
+/* RESULTS */
+#results { display: none; margin-top: 2rem; }
+
+.section-title {
+  font-family: var(--font-serif);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-light);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+  padding-left: 2px;
+}
+
+/* 기본정보 카드 */
+.info-card {
+  background: var(--white);
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 1px 8px rgba(27,58,47,.04);
+}
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+.info-item {}
+.info-item .label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ink-light);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 3px;
+}
+.info-item .value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.pnu-badge {
+  display: inline-block;
+  font-family: monospace;
+  font-size: 0.78rem;
+  background: var(--cream);
+  border: 1px solid var(--cream-dark);
+  border-radius: 4px;
+  padding: 2px 8px;
+  color: var(--ink-mid);
+  margin-bottom: 1rem;
+}
+
+/* 감정평가 방법 카드 */
+.method-card {
+  background: var(--white);
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 1px 8px rgba(27,58,47,.04);
+}
+.method-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+.method-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--forest);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.method-badge {
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+.badge-official { background: rgba(30,107,69,.1); color: var(--ok); }
+.badge-compare  { background: rgba(176,122,26,.1); color: var(--warn); }
+
+.calc-steps {
+  background: var(--ochre-pale);
+  border-radius: var(--r);
+  padding: 1rem;
+  margin-bottom: 1.2rem;
+  font-size: 0.82rem;
+}
+.calc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  color: var(--ink-mid);
+  border-bottom: 1px dashed rgba(0,0,0,.06);
+}
+.calc-row:last-child { border-bottom: none; }
+.calc-row .calc-label { color: var(--ink-light); }
+.calc-row .calc-val { font-weight: 600; font-variant-numeric: tabular-nums; }
+.calc-result {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--forest);
+  padding-top: 6px;
+}
+
+.method-total {
+  border-top: 2px solid var(--cream-dark);
+  padding-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.method-total .label { font-size: 0.82rem; color: var(--ink-light); font-weight: 600; }
+.method-total .amount {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--forest);
+}
+.method-total .unit { font-size: 0.78rem; color: var(--ink-light); margin-left: 4px; }
+
+/* 사례 테이블 */
+.samples-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-light);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 1.2rem 0 0.5rem;
+}
+.samples-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+.samples-table th {
+  text-align: left;
+  color: var(--ink-light);
+  font-weight: 600;
+  font-size: 0.72rem;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--cream-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.samples-table td {
+  padding: 6px 8px;
+  color: var(--ink-mid);
+  border-bottom: 1px solid var(--ochre-pale);
+  font-variant-numeric: tabular-nums;
+}
+.samples-table tr:last-child td { border-bottom: none; }
+
+/* 종합 카드 */
+.summary-card {
+  background: linear-gradient(135deg, var(--forest) 0%, var(--forest-mid) 100%);
+  border-radius: var(--r-lg);
+  padding: 2rem;
+  color: var(--white);
+  margin-bottom: 1.2rem;
+  box-shadow: 0 4px 24px rgba(27,58,47,.18);
+}
+.summary-label {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,.6);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.6rem;
+}
+.summary-amount {
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 700;
+  color: var(--ochre-light);
+  line-height: 1.1;
+  margin-bottom: 0.3rem;
+}
+.summary-range {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,.55);
+  margin-bottom: 1.2rem;
+}
+.summary-meta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.summary-meta-item {}
+.summary-meta-item .sm-label { font-size: 0.7rem; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 2px; }
+.summary-meta-item .sm-val { font-size: 0.88rem; color: rgba(255,255,255,.85); font-weight: 500; }
+
+/* 면책 */
+.disclaimer {
+  background: var(--cream);
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r);
+  padding: 1rem 1.2rem;
+  font-size: 0.76rem;
+  color: var(--ink-light);
+  line-height: 1.7;
+  margin-top: 1rem;
+}
+.disclaimer strong { color: var(--ink-mid); }
+
+/* 다시 조회 */
+.reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1.5px solid var(--cream-dark);
+  border-radius: var(--r);
+  padding: 8px 16px;
+  font-family: var(--font-sans);
+  font-size: 0.84rem;
+  color: var(--ink-mid);
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  transition: border-color .2s, color .2s;
+}
+.reset-btn:hover { border-color: var(--forest-light); color: var(--forest); }
+
+@media (max-width: 520px) {
+  .land-type-row { grid-template-columns: 1fr; }
+  .pnu-row { grid-template-columns: 1fr; }
+  .method-total .amount { font-size: 1.3rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">땅개</a>
+  <a href="/" class="nav-back">← 홈으로</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">공공데이터 기반</div>
+  <h1>필지 감정평가</h1>
+  <p>공시지가 기준법과 거래사례비교법을 통해<br>토지의 적정 가격 범위를 산정합니다.</p>
+</div>
+
+<main>
+
+  <!-- 입력 폼 -->
+  <div id="form-section">
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-addr" onclick="switchTab('addr')">주소로 검색</button>
+      <button class="tab-btn" id="tab-pnu" onclick="switchTab('pnu')">PNU 직접 입력</button>
+    </div>
+
+    <div class="form-card">
+      <!-- 주소 탭 -->
+      <div id="panel-addr">
+        <div class="form-group">
+          <label>지번 주소 <span class="sub">시·군·구 + 읍·면·동 + 지번</span></label>
+          <input type="text" id="address" placeholder="예) 경기도 성남시 분당구 정자동 100-1" autocomplete="off">
+          <p class="hint">부번이 없으면 본번만 입력 (예: 정자동 100). 지번은 토지이음(eum.go.kr)에서 확인하세요.</p>
+        </div>
+        <div class="form-group">
+          <label>대지구분</label>
+          <div class="land-type-row">
+            <label class="radio-card">
+              <input type="radio" name="landType_addr" value="1" checked> 토지 (대·전·답 등)
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="landType_addr" value="2"> 임야
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- PNU 탭 -->
+      <div id="panel-pnu" style="display:none">
+        <div class="form-group">
+          <label>PNU <span class="sub">19자리 필지 고유번호</span></label>
+          <div class="pnu-row">
+            <input type="text" id="pnu-input" placeholder="예) 4113511000100010000" maxlength="19" autocomplete="off">
+          </div>
+          <p class="hint">
+            PNU = 법정동코드(10) + 대지구분(1) + 본번(4) + 부번(4)<br>
+            <a href="https://www.eum.go.kr" target="_blank" rel="noopener">토지이음</a> 또는
+            <a href="https://www.realtyprice.kr" target="_blank" rel="noopener">부동산공시가격알리미</a>에서 확인 가능
+          </p>
+        </div>
+        <div class="form-group">
+          <label>대지구분 <span class="sub">PNU 11번째 자리</span></label>
+          <div class="land-type-row">
+            <label class="radio-card">
+              <input type="radio" name="landType_pnu" value="1" checked> 1 — 토지
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="landType_pnu" value="2"> 2 — 임야
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 면적 입력 (공통) -->
+      <div class="form-group" style="margin-top:1.2rem">
+        <label>면적 <span class="sub">선택 — 입력 시 총액 산정 가능</span></label>
+        <div style="display:flex; gap:8px; align-items:center">
+          <input type="text" id="area-input" placeholder="예) 330.5" style="width:160px">
+          <span style="font-size:0.88rem; color:var(--ink-light)">㎡</span>
+          <span style="font-size:0.78rem; color:var(--ink-light)">— 토지이음(eum.go.kr)에서 확인</span>
+        </div>
+      </div>
+
+      <div id="error-box"></div>
+      <button class="btn-primary" id="submit-btn" onclick="submitValuation()">감정평가 산정하기</button>
+    </div>
+  </div>
+
+  <!-- 로딩 -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <ul class="loading-steps">
+      <li id="step1">법정동코드 조회</li>
+      <li id="step2">개별공시지가 조회</li>
+      <li id="step3">토지특성 조회</li>
+      <li id="step4">실거래가 조회 (최근 12개월)</li>
+      <li id="step5">감정평가 계산</li>
+    </ul>
+  </div>
+
+  <!-- 결과 -->
+  <div id="results">
+    <button class="reset-btn" onclick="resetForm()">← 다시 조회</button>
+
+    <!-- 기본정보 -->
+    <p class="section-title">토지 기본정보</p>
+    <div class="info-card">
+      <div id="pnu-badge" class="pnu-badge"></div>
+      <div class="info-grid" id="info-grid"></div>
+    </div>
+
+    <!-- 공시지가 기준법 -->
+    <p class="section-title">공시지가 기준법</p>
+    <div class="method-card" id="official-card">
+      <div class="method-header">
+        <div class="method-name">
+          공시지가 기준법
+          <span class="method-badge badge-official">감칙 §14</span>
+        </div>
+      </div>
+      <div class="calc-steps" id="official-steps"></div>
+      <div class="method-total">
+        <span class="label">산정 추정가</span>
+        <span>
+          <span class="amount" id="official-total"></span>
+          <span class="unit">원</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 거래사례비교법 -->
+    <p class="section-title" id="compare-title">거래사례비교법</p>
+    <div class="method-card" id="compare-card">
+      <div class="method-header">
+        <div class="method-name">
+          거래사례비교법
+          <span class="method-badge badge-compare">감칙 §15</span>
+        </div>
+      </div>
+      <div class="calc-steps" id="compare-steps"></div>
+      <div id="samples-section"></div>
+      <div class="method-total">
+        <span class="label">산정 추정가</span>
+        <span>
+          <span class="amount" id="compare-total"></span>
+          <span class="unit">원</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- 종합 -->
+    <p class="section-title">종합 감정평가액</p>
+    <div class="summary-card">
+      <div class="summary-label">두 방법 평균 추정가액</div>
+      <div class="summary-amount" id="summary-amount"></div>
+      <div class="summary-range" id="summary-range"></div>
+      <div class="summary-meta" id="summary-meta"></div>
+    </div>
+
+    <div class="disclaimer">
+      <strong>주의사항</strong><br>
+      본 산정가는 공공데이터를 바탕으로 한 참고용 추정치이며, 감정평가사가 수행한 공식 감정평가서가 아닙니다.
+      시점수정계수는 전국 평균 지가상승률(연 3%)을 단순 적용한 값으로 실제 지역별 변동률과 다를 수 있습니다.
+      개별요인(접근성·환경·형상 등)은 토지특성 데이터를 기반으로 하며, 현장 조사 없이는 정확도에 한계가 있습니다.
+      법적·금융 목적으로 사용 시 반드시 공인 감정평가사의 감정평가서를 발급받으십시오.
+    </div>
+  </div>
+
+</main>
+
+<script>
+let currentTab = 'addr';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('panel-addr').style.display = tab === 'addr' ? '' : 'none';
+  document.getElementById('panel-pnu').style.display  = tab === 'pnu'  ? '' : 'none';
+  document.getElementById('tab-addr').classList.toggle('active', tab === 'addr');
+  document.getElementById('tab-pnu').classList.toggle('active',  tab === 'pnu');
+  clearError();
+}
+
+function clearError() {
+  const box = document.getElementById('error-box');
+  box.style.display = 'none';
+  box.textContent = '';
+}
+
+function showError(msg) {
+  const box = document.getElementById('error-box');
+  box.textContent = msg;
+  box.style.display = 'block';
+}
+
+function fmt(n) {
+  if (!n || isNaN(n)) return '-';
+  return Number(n).toLocaleString('ko-KR');
+}
+
+function fmtWon(n) {
+  if (!n || isNaN(n)) return '-';
+  const v = Number(n);
+  if (v >= 1e8)  return (v / 1e8).toFixed(2) + '억';
+  if (v >= 1e4)  return (v / 1e4).toFixed(0) + '만';
+  return v.toLocaleString('ko-KR');
+}
+
+function fmtFull(n) {
+  if (!n || isNaN(n)) return '-';
+  return Number(n).toLocaleString('ko-KR');
+}
+
+// 로딩 단계 표시
+let stepTimer = null;
+function startLoadingSteps() {
+  const steps = ['step1','step2','step3','step4','step5'];
+  let idx = 0;
+  steps.forEach(s => {
+    const el = document.getElementById(s);
+    el.classList.remove('done','active');
+  });
+  stepTimer = setInterval(() => {
+    if (idx > 0) document.getElementById(steps[idx - 1])?.classList.replace('active','done');
+    if (idx < steps.length) {
+      document.getElementById(steps[idx])?.classList.add('active');
+      idx++;
+    } else {
+      clearInterval(stepTimer);
+    }
+  }, 900);
+}
+
+function stopLoadingSteps() {
+  clearInterval(stepTimer);
+  ['step1','step2','step3','step4','step5'].forEach(s => {
+    const el = document.getElementById(s);
+    el.classList.remove('active');
+    el.classList.add('done');
+  });
+}
+
+async function submitValuation() {
+  clearError();
+  let body = {};
+
+  const areaVal = parseFloat(document.getElementById('area-input').value.replace(/,/g,''));
+  const area = isNaN(areaVal) ? undefined : areaVal;
+
+  if (currentTab === 'addr') {
+    const address = document.getElementById('address').value.trim();
+    if (!address) return showError('주소를 입력해 주세요.');
+    const landType = document.querySelector('input[name="landType_addr"]:checked')?.value || '1';
+    body = { address, landType, ...(area ? { area } : {}) };
+  } else {
+    const pnu = document.getElementById('pnu-input').value.replace(/\s/g,'');
+    if (!/^\d{19}$/.test(pnu)) return showError('PNU는 숫자 19자리여야 합니다.');
+    const landType = document.querySelector('input[name="landType_pnu"]:checked')?.value || '1';
+    body = { pnu, landType, ...(area ? { area } : {}) };
+  }
+
+  // UI 전환
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+  startLoadingSteps();
+
+  try {
+    const resp = await fetch('/api/valuation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      stopLoadingSteps();
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('form-section').style.display = '';
+      showError(data.error || '서버 오류가 발생했습니다.');
+      return;
+    }
+
+    stopLoadingSteps();
+    renderResults(data);
+  } catch (e) {
+    stopLoadingSteps();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('form-section').style.display = '';
+    showError('네트워크 오류: ' + e.message);
+  }
+}
+
+function renderResults(d) {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('results').style.display = '';
+
+  // PNU 배지
+  document.getElementById('pnu-badge').textContent = 'PNU: ' + d.pnu;
+
+  // 기본정보
+  const li = d.landInfo;
+  const infoData = [
+    { label: '면적', value: li.area ? fmt(li.area) + ' ㎡' : '-' },
+    { label: '지목', value: li.landType || '-' },
+    { label: '용도지역', value: li.usage || '-' },
+    { label: '도로접면', value: li.road || '-' },
+    { label: '지형형상', value: li.shape || '-' },
+    { label: '지형높이', value: li.topo || '-' },
+  ].filter(i => i.value !== '-');
+  document.getElementById('info-grid').innerHTML = infoData.map(i =>
+    `<div class="info-item"><span class="label">${i.label}</span><span class="value">${i.value}</span></div>`
+  ).join('');
+
+  // 공시지가 기준법
+  const om = d.officialMethod;
+  document.getElementById('official-steps').innerHTML = `
+    <div class="calc-row">
+      <span class="calc-label">${om.baseYear}년 개별공시지가</span>
+      <span class="calc-val">${fmt(om.basePricePerSqm)} 원/㎡</span>
+    </div>
+    <div class="calc-row">
+      <span class="calc-label">× 시점수정계수 <small>(연 3%, ${om.baseYear}→현재)</small></span>
+      <span class="calc-val">${om.timeAdjFactor}</span>
+    </div>
+    <div class="calc-row">
+      <span class="calc-label">= 시점수정 단가</span>
+      <span class="calc-val">${fmt(om.adjPricePerSqm)} 원/㎡</span>
+    </div>
+    <div class="calc-row">
+      <span class="calc-label">× 면적</span>
+      <span class="calc-val">${fmt(om.area)} ㎡</span>
+    </div>`;
+  document.getElementById('official-total').textContent = fmtFull(om.totalPrice);
+
+  // 거래사례비교법
+  const cm = d.comparativeMethod;
+  if (cm) {
+    document.getElementById('compare-card').style.display = '';
+    document.getElementById('compare-title').style.display = '';
+    document.getElementById('compare-steps').innerHTML = `
+      <div class="calc-row">
+        <span class="calc-label">수집 거래 사례</span>
+        <span class="calc-val">${cm.totalTxns}건 (유효 ${cm.usedTxns}건)</span>
+      </div>
+      <div class="calc-row">
+        <span class="calc-label">시점수정 후 중앙값 단가</span>
+        <span class="calc-val">${fmt(cm.adjPricePerSqm)} 원/㎡</span>
+      </div>
+      <div class="calc-row">
+        <span class="calc-label">× 면적</span>
+        <span class="calc-val">${fmt(cm.area)} ㎡</span>
+      </div>`;
+
+    let samplesHtml = '';
+    if (cm.samples && cm.samples.length) {
+      samplesHtml = `
+        <p class="samples-title">주요 비교 거래 사례 (시점수정 적용)</p>
+        <table class="samples-table">
+          <thead>
+            <tr>
+              <th>거래연월</th><th>면적(㎡)</th><th>거래가(만원)</th><th>보정단가(원/㎡)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${cm.samples.map(s => `
+              <tr>
+                <td>${s.date}</td>
+                <td>${fmt(s.area)}</td>
+                <td>${fmt(s.priceMw)}</td>
+                <td>${fmt(s.adjPpSqm)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+    document.getElementById('samples-section').innerHTML = samplesHtml;
+    document.getElementById('compare-total').textContent = fmtFull(cm.totalPrice);
+  } else {
+    document.getElementById('compare-card').style.display = 'none';
+    document.getElementById('compare-title').style.display = 'none';
+  }
+
+  // 종합
+  const s = d.summary;
+  document.getElementById('summary-amount').textContent = fmtFull(s.avgTotalPrice) + ' 원';
+  if (s.methodsUsed > 1) {
+    document.getElementById('summary-range').textContent =
+      `범위: ${fmtFull(s.priceRange.low)} ~ ${fmtFull(s.priceRange.high)} 원`;
+  } else {
+    document.getElementById('summary-range').textContent = '단일 방법 적용';
+  }
+
+  const area = li.area;
+  const ppSqm = area ? Math.round(s.avgTotalPrice / area) : null;
+  const metaItems = [
+    { label: '적용 방법', value: s.methodsUsed + '개' },
+    { label: '대상 면적', value: area ? fmt(area) + ' ㎡' : '-' },
+    ppSqm ? { label: '㎡당 단가', value: fmt(ppSqm) + ' 원' } : null,
+    { label: '기준일', value: new Date().toLocaleDateString('ko-KR') },
+  ].filter(Boolean);
+  document.getElementById('summary-meta').innerHTML = metaItems.map(i =>
+    `<div class="summary-meta-item"><span class="sm-label">${i.label}</span><span class="sm-val">${i.value}</span></div>`
+  ).join('');
+}
+
+function resetForm() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('form-section').style.display = '';
+  clearError();
+}
+
+// Enter 키 제출
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('form-section').style.display !== 'none') {
+    submitValuation();
+  }
+});
+</script>
+</body>
+</html>
