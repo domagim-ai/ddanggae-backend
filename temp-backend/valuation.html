@@ -481,6 +481,356 @@ input[type="text"]:focus, select:focus {
 }
 .disclaimer strong { color: var(--ink-mid); }
 
+/* ===== 지목변경 분석 (유료) ===== */
+.premium-cta {
+  background: linear-gradient(135deg, #1a1f2e 0%, #2d3a5c 100%);
+  border-radius: var(--r-lg);
+  padding: 2rem;
+  margin-top: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.premium-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c4a45a' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.premium-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(196,164,90,.15);
+  border: 1px solid rgba(196,164,90,.35);
+  color: var(--ochre);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 0.8rem;
+}
+.premium-cta h3 {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+.premium-cta p {
+  font-size: 0.84rem;
+  color: rgba(255,255,255,.6);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+.premium-features {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 460px) { .premium-features { grid-template-columns: 1fr; } }
+.premium-feat-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,.8);
+}
+.premium-feat-item .feat-icon {
+  width: 22px; height: 22px; min-width: 22px;
+  background: rgba(196,164,90,.15);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem;
+  color: var(--ochre);
+  margin-top: 1px;
+}
+.premium-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.premium-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.premium-price .amount {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--ochre-light);
+}
+.premium-price .unit { font-size: 0.8rem; color: rgba(255,255,255,.5); }
+.btn-premium {
+  padding: 12px 28px;
+  background: var(--ochre);
+  color: var(--forest);
+  border: none;
+  border-radius: var(--r);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+  white-space: nowrap;
+}
+.btn-premium:hover { background: #d4b46a; }
+.btn-premium:active { transform: scale(0.97); }
+.btn-premium:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 지목 선택 패널 */
+.jibun-panel {
+  display: none;
+  background: var(--white);
+  border-radius: var(--r-lg);
+  padding: 2rem;
+  margin-top: 1.5rem;
+  border: 1px solid var(--cream-dark);
+  box-shadow: 0 2px 16px rgba(27,58,47,.06);
+}
+.jibun-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 8px;
+  margin: 1rem 0 1.5rem;
+}
+.jibun-option {
+  padding: 10px 8px;
+  border: 1.5px solid var(--cream-dark);
+  border-radius: var(--r);
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--ink-mid);
+  transition: all .15s;
+  user-select: none;
+}
+.jibun-option:hover { border-color: var(--ochre); color: var(--ink); }
+.jibun-option.selected {
+  border-color: var(--ochre);
+  background: #FFF8EC;
+  color: #7A5A10;
+  font-weight: 700;
+}
+.jibun-option .jibun-ko { font-size: 1rem; display: block; margin-bottom: 2px; }
+.jibun-option .jibun-en { font-size: 0.68rem; color: var(--ink-light); }
+.jibun-option.selected .jibun-en { color: #A07820; }
+
+/* 분석 결과 */
+#change-result { display: none; margin-top: 1.5rem; }
+.change-compare-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0;
+  align-items: stretch;
+  margin-bottom: 1.2rem;
+}
+.compare-box {
+  background: var(--white);
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+}
+.compare-box.current-box { border-color: var(--cream-dark); }
+.compare-box.projected-box { border-color: var(--ochre); background: #FFFBF2; }
+.compare-arrow {
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 0.8rem;
+  font-size: 1.4rem;
+  color: var(--ochre);
+}
+.compare-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+  color: var(--ink-light);
+}
+.compare-jibun {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 0.6rem;
+}
+.compare-ppSqm {
+  font-size: 0.78rem;
+  color: var(--ink-light);
+  margin-bottom: 0.2rem;
+}
+.compare-total {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.projected-box .compare-total { color: var(--ochre); }
+.projected-box .compare-jibun { color: #7A5A10; }
+
+.change-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 1.2rem;
+}
+@media (max-width: 480px) { .change-stat-grid { grid-template-columns: 1fr 1fr; } }
+.change-stat {
+  background: var(--white);
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r);
+  padding: 1rem;
+  text-align: center;
+}
+.change-stat .cs-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--ink-light);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: block;
+  margin-bottom: 4px;
+}
+.change-stat .cs-val {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--forest);
+}
+.change-stat .cs-val.positive { color: #1E6B45; }
+.change-stat .cs-val.warning  { color: var(--warn); }
+
+.dev-cost-card, .appraiser-card {
+  background: var(--white);
+  border: 1px solid var(--cream-dark);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.2rem;
+}
+.dev-cost-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.dev-cost-header .title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.dev-cost-header .subtitle {
+  font-size: 0.72rem;
+  color: var(--ink-light);
+}
+.dev-items { margin-bottom: 1rem; }
+.dev-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--ink-mid);
+  padding: 4px 0;
+}
+.dev-item::before { content: '·'; color: var(--ochre); font-weight: 700; }
+.dev-range {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--cream-dark);
+  font-size: 0.84rem;
+}
+.dev-range .label { color: var(--ink-light); font-weight: 600; }
+.dev-range .range-val { font-weight: 700; color: var(--warn); }
+
+/* 감정평가사 협업 카드 */
+.appraiser-card {
+  border-color: rgba(196,164,90,.3);
+  background: linear-gradient(to bottom, #FFFBF2, var(--white));
+}
+.appraiser-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+.appraiser-icon {
+  width: 40px; height: 40px;
+  background: rgba(196,164,90,.12);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+}
+.appraiser-title { font-size: 0.92rem; font-weight: 700; color: var(--ink); }
+.appraiser-subtitle { font-size: 0.75rem; color: var(--ink-light); }
+.appraiser-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(176,122,26,.1);
+  color: var(--warn);
+  border: 1px solid rgba(176,122,26,.2);
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  margin-bottom: 1rem;
+}
+.appraiser-pending-items {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+@media (max-width: 460px) { .appraiser-pending-items { grid-template-columns: 1fr; } }
+.pending-item {
+  background: var(--cream);
+  border-radius: var(--r);
+  padding: 0.8rem;
+}
+.pending-item .pi-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--ink-light);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: block;
+  margin-bottom: 4px;
+}
+.pending-item .pi-val {
+  font-size: 0.82rem;
+  color: var(--ink-mid);
+  font-style: italic;
+}
+.appraiser-cta-note {
+  font-size: 0.78rem;
+  color: var(--ink-light);
+  line-height: 1.6;
+  padding: 0.8rem;
+  background: var(--cream);
+  border-radius: var(--r);
+  border-left: 3px solid var(--ochre);
+}
+
+.source-note {
+  font-size: 0.72rem;
+  color: var(--ink-light);
+  margin-top: 4px;
+  font-style: italic;
+}
+.report-id {
+  font-size: 0.7rem;
+  color: var(--ink-light);
+  font-family: monospace;
+  margin-bottom: 1.5rem;
+  text-align: right;
+}
+
 /* 다시 조회 */
 .reset-btn {
   display: inline-flex;
@@ -665,8 +1015,142 @@ input[type="text"]:focus, select:focus {
       <strong>주의사항</strong><br>
       본 산정가는 공공데이터를 바탕으로 한 참고용 추정치이며, 감정평가사가 수행한 공식 감정평가서가 아닙니다.
       시점수정계수는 전국 평균 지가상승률(연 3%)을 단순 적용한 값으로 실제 지역별 변동률과 다를 수 있습니다.
-      개별요인(접근성·환경·형상 등)은 토지특성 데이터를 기반으로 하며, 현장 조사 없이는 정확도에 한계가 있습니다.
       법적·금융 목적으로 사용 시 반드시 공인 감정평가사의 감정평가서를 발급받으십시오.
+    </div>
+
+    <!-- ===== 유료: 지목변경 분석 ===== -->
+    <div class="premium-cta" id="premium-cta">
+      <div class="premium-badge">★ 프리미엄 분석</div>
+      <h3>지목변경 후 가치 변화 분석</h3>
+      <p>개발 후 지목이 바뀌면 필지 가격이 얼마나 달라질까요?<br>
+         인근 실거래 사례 기반으로 지목변경 시나리오를 분석하고,<br>
+         개발비용·순이익·ROI를 산정합니다.</p>
+      <div class="premium-features">
+        <div class="premium-feat-item"><div class="feat-icon">①</div><span>지목변경 전·후 가격 비교</span></div>
+        <div class="premium-feat-item"><div class="feat-icon">②</div><span>개발비용 범위 추정</span></div>
+        <div class="premium-feat-item"><div class="feat-icon">③</div><span>순이익 및 ROI 산정</span></div>
+        <div class="premium-feat-item"><div class="feat-icon">④</div><span>감정평가사 검토 의견란</span></div>
+      </div>
+      <div class="premium-footer">
+        <div class="premium-price">
+          <span class="amount" id="cta-price">9,900</span>
+          <span class="unit">원 / 1회 분석</span>
+        </div>
+        <button class="btn-premium" id="btn-start-premium" onclick="showJibunPanel()">지목변경 분석 시작 →</button>
+      </div>
+    </div>
+
+    <!-- 지목 선택 패널 -->
+    <div class="jibun-panel" id="jibun-panel">
+      <p class="section-title">변경 목표 지목 선택</p>
+      <p style="font-size:0.84rem;color:var(--ink-light);margin-bottom:0.5rem">개발 후 목표하는 지목을 선택하세요.</p>
+      <div class="jibun-grid" id="jibun-grid">
+        <!-- JS로 생성 -->
+      </div>
+      <div id="jibun-error" style="display:none;font-size:0.82rem;color:var(--danger);margin-bottom:1rem"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <button class="reset-btn" onclick="hideJibunPanel()" style="margin:0">← 취소</button>
+        <button class="btn-primary" id="btn-pay" onclick="startPayment()" style="width:auto;padding:12px 32px;margin:0">결제 후 분석하기</button>
+      </div>
+    </div>
+
+    <!-- 분석 결과 -->
+    <div id="change-result">
+      <div class="report-id" id="report-id-text"></div>
+
+      <p class="section-title">지목변경 가치 비교</p>
+      <div class="change-compare-grid">
+        <div class="compare-box current-box">
+          <div class="compare-label">현재 (변경 전)</div>
+          <div class="compare-jibun" id="cr-cur-jibun">—</div>
+          <div class="compare-ppSqm" id="cr-cur-ppSqm"></div>
+          <div class="compare-total" id="cr-cur-total">—</div>
+        </div>
+        <div class="compare-arrow">→</div>
+        <div class="compare-box projected-box">
+          <div class="compare-label">변경 후 (예상)</div>
+          <div class="compare-jibun" id="cr-prj-jibun">—</div>
+          <div class="compare-ppSqm" id="cr-prj-ppSqm"></div>
+          <div class="compare-total" id="cr-prj-total">—</div>
+        </div>
+      </div>
+      <div class="source-note" id="cr-source" style="margin-bottom:1.2rem"></div>
+
+      <p class="section-title">가치 변화 요약</p>
+      <div class="change-stat-grid">
+        <div class="change-stat">
+          <span class="cs-label">가치 증가액</span>
+          <span class="cs-val positive" id="cr-increase">—</span>
+        </div>
+        <div class="change-stat">
+          <span class="cs-label">가치 증가율</span>
+          <span class="cs-val positive" id="cr-rate">—</span>
+        </div>
+        <div class="change-stat">
+          <span class="cs-label">순이익 추정</span>
+          <span class="cs-val" id="cr-net">—</span>
+        </div>
+      </div>
+
+      <p class="section-title">개발비용 추정</p>
+      <div class="dev-cost-card">
+        <div class="dev-cost-header">
+          <div>
+            <div class="title" id="cr-cost-scenario">—</div>
+            <div class="subtitle">전국 평균 추정치 — 현장·지역 조건에 따라 실제 비용 상이</div>
+          </div>
+        </div>
+        <div class="dev-items" id="cr-cost-items"></div>
+        <div class="dev-range">
+          <span class="label">총 개발비용 추정</span>
+          <span class="range-val" id="cr-cost-range">—</span>
+        </div>
+      </div>
+
+      <!-- 감정평가사 협업 카드 -->
+      <p class="section-title">감정평가사 검토 의견</p>
+      <div class="appraiser-card">
+        <div class="appraiser-header">
+          <div class="appraiser-icon">⚖</div>
+          <div>
+            <div class="appraiser-title">전문가 검토 의견</div>
+            <div class="appraiser-subtitle" id="cr-appraiser-reviewer">검토 감정평가사 미배정</div>
+          </div>
+        </div>
+        <div class="appraiser-status" id="cr-appraiser-status">
+          ● 검토 대기 중
+        </div>
+        <div class="appraiser-pending-items">
+          <div class="pending-item">
+            <span class="pi-label">공식 감정가</span>
+            <span class="pi-val" id="cr-adj-value">검토 후 업데이트</span>
+          </div>
+          <div class="pending-item">
+            <span class="pi-label">현장 위험요인</span>
+            <span class="pi-val" id="cr-risk">검토 후 업데이트</span>
+          </div>
+          <div class="pending-item">
+            <span class="pi-label">인허가 확인사항</span>
+            <span class="pi-val" id="cr-legal">검토 후 업데이트</span>
+          </div>
+          <div class="pending-item">
+            <span class="pi-label">전문가 추천 조치</span>
+            <span class="pi-val" id="cr-recommend">검토 후 업데이트</span>
+          </div>
+        </div>
+        <div class="appraiser-cta-note" id="cr-appraiser-note">
+          본 분석 리포트는 감정평가사 검토 예정입니다. 검토 완료 시 공식 의견과 조정 가격이 업데이트됩니다.
+          인허가 진행 전 전문가 현장 조사를 반드시 병행하십시오.
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        <strong>분석 한계 및 주의사항</strong><br>
+        지목변경 후 예상 가격은 공공 실거래 데이터 및 지목별 배율을 적용한 자동 추정치입니다.
+        실제 개발 수익은 현장 조건·인허가 난이도·금리·시장 상황에 따라 크게 달라질 수 있습니다.
+        개발부담금·취득세 등 세금은 별도이며 이 분석에 포함되지 않습니다.
+        반드시 감정평가사, 법무사, 세무사의 전문 의견을 받으신 후 투자 결정을 내리십시오.
+      </div>
     </div>
   </div>
 
@@ -918,6 +1402,214 @@ document.addEventListener('keydown', e => {
     submitValuation();
   }
 });
+
+// ===== 지목변경 분석 (유료) =====
+
+const JIBUN_OPTIONS = [
+  { ko: '대',     en: '주거·상업용지', popular: true },
+  { ko: '공장용지', en: '제조업 용지' },
+  { ko: '잡종지',  en: '다목적 활용' },
+  { ko: '전',     en: '밭' },
+  { ko: '답',     en: '논' },
+  { ko: '과수원',  en: '과수 재배' },
+  { ko: '임야',   en: '산지' },
+];
+
+let appConfig  = { tossClientKey: '', changeAnalysisPrice: 9900 };
+let selectedJibun = null;
+let lastValuationData = null;  // 무료 결과 저장
+let tossInstance = null;
+
+// 설정 로드
+fetch('/api/config').then(r => r.json()).then(cfg => {
+  appConfig = cfg;
+  document.getElementById('cta-price').textContent = Number(cfg.changeAnalysisPrice).toLocaleString('ko-KR');
+}).catch(() => {});
+
+// 지목 선택 그리드 생성
+function buildJibunGrid(currentJibun) {
+  const grid = document.getElementById('jibun-grid');
+  grid.innerHTML = JIBUN_OPTIONS
+    .filter(j => j.ko !== currentJibun)
+    .map(j => `
+      <div class="jibun-option${j.popular ? '' : ''}" data-jibun="${j.ko}" onclick="selectJibun('${j.ko}', this)">
+        <span class="jibun-ko">${j.ko}</span>
+        <span class="jibun-en">${j.en}</span>
+      </div>`).join('');
+}
+
+function selectJibun(jibun, el) {
+  document.querySelectorAll('.jibun-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedJibun = jibun;
+  document.getElementById('jibun-error').style.display = 'none';
+}
+
+function showJibunPanel() {
+  const currentJibun = lastValuationData?.landInfo?.landType || '';
+  buildJibunGrid(currentJibun);
+  selectedJibun = null;
+  document.getElementById('jibun-panel').style.display = 'block';
+  document.getElementById('jibun-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function hideJibunPanel() {
+  document.getElementById('jibun-panel').style.display = 'none';
+  selectedJibun = null;
+}
+
+async function startPayment() {
+  if (!selectedJibun) {
+    const err = document.getElementById('jibun-error');
+    err.textContent = '변경 목표 지목을 선택해 주세요.';
+    err.style.display = 'block';
+    return;
+  }
+  if (!appConfig.tossClientKey || appConfig.tossClientKey === 'your_toss_client_key_here') {
+    alert('결제 시스템이 아직 설정되지 않았습니다. 관리자에게 문의해 주세요.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-pay');
+  btn.disabled = true;
+  btn.textContent = '결제창 로딩 중…';
+
+  try {
+    const { loadTossPayments } = await import('https://js.tosspayments.com/v2/browser');
+    const toss = await loadTossPayments(appConfig.tossClientKey);
+    const payment = toss.payment({ customerKey: 'guest-' + Date.now() });
+    const orderId = 'CA-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+
+    // 결제 정보를 세션스토리지에 저장 (리턴 후 사용)
+    sessionStorage.setItem('pendingOrder', JSON.stringify({
+      orderId,
+      targetJibun: selectedJibun,
+      valuationData: lastValuationData,
+    }));
+
+    await payment.requestPayment({
+      method: 'CARD',
+      amount: { currency: 'KRW', value: appConfig.changeAnalysisPrice },
+      orderId,
+      orderName: `지목변경 분석: ${lastValuationData?.landInfo?.landType || '현재'} → ${selectedJibun}`,
+      successUrl: window.location.href.split('?')[0] + '?payment=success',
+      failUrl:    window.location.href.split('?')[0] + '?payment=fail',
+    });
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = '결제 후 분석하기';
+    if (e.code !== 'USER_CANCEL') alert('결제 오류: ' + e.message);
+  }
+}
+
+// 결제 완료 후 리턴 처리
+async function handlePaymentReturn() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('payment') !== 'success') return;
+
+  const paymentKey = params.get('paymentKey');
+  const orderId    = params.get('orderId');
+  const amount     = params.get('amount');
+  const pending    = JSON.parse(sessionStorage.getItem('pendingOrder') || 'null');
+
+  if (!paymentKey || !pending) return;
+  sessionStorage.removeItem('pendingOrder');
+  // URL 정리
+  history.replaceState(null, '', location.pathname);
+
+  // 무료 결과가 없으면 다시 로드할 수 없으므로 안내
+  if (!pending.valuationData) {
+    alert('분석 데이터가 만료되었습니다. 다시 감정평가를 조회해 주세요.');
+    return;
+  }
+
+  lastValuationData = pending.valuationData;
+  renderResults(lastValuationData);
+  await runChangeAnalysis(paymentKey, orderId, Number(amount), pending.targetJibun);
+}
+
+async function runChangeAnalysis(paymentKey, orderId, amount, targetJibun) {
+  const d = lastValuationData;
+  const pnu        = d.pnu;
+  const dongCode10 = pnu.slice(0, 10);
+  const om         = d.officialMethod;
+  const cm         = d.comparativeMethod;
+  const area       = d.landInfo.area || 0;
+  const currentPpSqm = om?.adjPricePerSqm || 0;
+  const currentTotal = d.summary?.avgTotalPrice || om?.totalPrice || 0;
+
+  document.getElementById('jibun-panel').style.display = 'none';
+  document.getElementById('change-result').style.display = 'none';
+
+  try {
+    const resp = await fetch('/api/change-analysis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pnu, dongCode10, targetJibun, area,
+        currentJibun: d.landInfo.landType || '',
+        currentPpSqm, currentTotalPrice: currentTotal,
+        paymentKey, orderId, amount,
+      }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) { alert('분석 오류: ' + (data.error || '서버 오류')); return; }
+    renderChangeResult(data);
+  } catch (e) {
+    alert('네트워크 오류: ' + e.message);
+  }
+}
+
+function renderChangeResult(r) {
+  document.getElementById('change-result').style.display = '';
+  document.getElementById('report-id-text').textContent = '리포트 ID: ' + r.reportId;
+
+  // 비교
+  document.getElementById('cr-cur-jibun').textContent  = r.currentState.jibun;
+  document.getElementById('cr-cur-ppSqm').textContent  = fmt(r.currentState.pricePerSqm) + ' 원/㎡';
+  document.getElementById('cr-cur-total').textContent  = fmtFull(r.currentState.totalPrice) + ' 원';
+  document.getElementById('cr-prj-jibun').textContent  = r.projectedState.jibun;
+  document.getElementById('cr-prj-ppSqm').textContent  = fmt(r.projectedState.pricePerSqm) + ' 원/㎡';
+  document.getElementById('cr-prj-total').textContent  = fmtFull(r.projectedState.totalPrice) + ' 원';
+  document.getElementById('cr-source').textContent     = '* 가격 산출 근거: ' + r.projectedState.priceSource +
+    (r.projectedState.sampleCount ? ` (${r.projectedState.sampleCount}건 사례)` : '');
+
+  // 요약
+  const inc = r.valueChange.amount;
+  document.getElementById('cr-increase').textContent = (inc >= 0 ? '+' : '') + fmtFull(inc) + ' 원';
+  document.getElementById('cr-increase').className   = 'cs-val ' + (inc >= 0 ? 'positive' : 'warning');
+  document.getElementById('cr-rate').textContent     = r.valueChange.rate != null ? (r.valueChange.rate >= 0 ? '+' : '') + r.valueChange.rate + '%' : '-';
+  const netMin = r.netGain.min, netMax = r.netGain.max;
+  document.getElementById('cr-net').textContent      = fmtFull(netMin) + ' ~ ' + fmtFull(netMax) + ' 원';
+  document.getElementById('cr-net').className        = 'cs-val ' + (netMin >= 0 ? 'positive' : 'warning');
+
+  // 개발비용
+  document.getElementById('cr-cost-scenario').textContent = r.developmentCost.scenario + ' 개발비용';
+  document.getElementById('cr-cost-items').innerHTML = r.developmentCost.items
+    .map(i => `<div class="dev-item">${i}</div>`).join('');
+  document.getElementById('cr-cost-range').textContent =
+    fmtFull(r.developmentCost.totalRange.min) + ' ~ ' + fmtFull(r.developmentCost.totalRange.max) + ' 원';
+
+  // 감정평가사 검토
+  const ap = r.appraiserReview;
+  const statusMap = { pending: '● 검토 대기 중', in_review: '◉ 검토 진행 중', completed: '✓ 검토 완료' };
+  document.getElementById('cr-appraiser-status').textContent   = statusMap[ap.status] || ap.status;
+  document.getElementById('cr-appraiser-reviewer').textContent = ap.reviewer
+    ? `${ap.reviewer.name} (${ap.reviewer.firm})` : '검토 감정평가사 미배정';
+  document.getElementById('cr-adj-value').textContent    = ap.adjustedValue ? fmtFull(ap.adjustedValue) + ' 원' : '검토 후 업데이트';
+  document.getElementById('cr-risk').textContent         = ap.riskFactors?.length ? ap.riskFactors.join(', ') : '검토 후 업데이트';
+  document.getElementById('cr-legal').textContent        = ap.legalChecks?.length ? ap.legalChecks.join(', ') : '검토 후 업데이트';
+  document.getElementById('cr-recommend').textContent    = ap.recommendations?.length ? ap.recommendations.join(', ') : '검토 후 업데이트';
+  document.getElementById('cr-appraiser-note').textContent = ap.note;
+
+  document.getElementById('change-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // CTA 숨기기
+  document.getElementById('premium-cta').style.display = 'none';
+}
+
+// 페이지 로드 시 결제 리턴 처리
+handlePaymentReturn();
 </script>
 </body>
 </html>

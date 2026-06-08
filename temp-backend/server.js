@@ -594,6 +594,169 @@ async function handleValuation(req, res) {
   });
 }
 
+// ========== 지목변경 분석 ==========
+
+// 지목변경 시나리오별 개발비용 범위 (원/㎡) — 전국 평균 추정치
+const DEV_COST = {
+  '전→대':   { min: 250000, max: 1000000, items: ['농지전용허가', '농지보전부담금(공시지가×30%)', '토목·포장공사'] },
+  '답→대':   { min: 300000, max: 1200000, items: ['농지전용허가', '농지보전부담금(공시지가×30%)', '배수·토목공사'] },
+  '임야→대': { min: 450000, max: 2500000, items: ['산지전용허가', '대체산림자원조성비', '절·성토 공사(경사도 편차 큼)'] },
+  'default': { min: 150000, max:  700000, items: ['지목변경 허가', '관련 인허가 비용', '공사비'] },
+};
+
+// 지목별 가격 배율표 (대지=1 기준, 전국 평균 실거래 참고치)
+// 실거래 데이터가 없을 때 fallback으로 사용
+const JIBUN_RATIO_TO_DANJI = {
+  '전': 0.18, '답': 0.16, '과수원': 0.14, '목장용지': 0.12,
+  '임야': 0.07, '잡종지': 0.40, '공장용지': 0.75, '대': 1.0,
+};
+
+function getDevCostKey(fromJibun, toJibun) {
+  const f = fromJibun.replace(/\s/g, '');
+  const t = toJibun.replace(/\s/g, '');
+  if ((f === '전' || f === '田') && t === '대') return '전→대';
+  if ((f === '답' || f === '畓') && t === '대') return '답→대';
+  if (f === '임야' && t === '대') return '임야→대';
+  return 'default';
+}
+
+// 목표 지목 실거래가 → ㎡당 단가
+async function getTargetJibunPpSqm(dongCode10, targetJibun) {
+  try {
+    const txns = await getLandTransactions(dongCode10, 24);
+    const same = txns.filter(t =>
+      t.landType && t.landType.replace(/\s/g,'') === targetJibun.replace(/\s/g,'')
+    );
+    if (same.length < 3) return null;
+    const now = new Date();
+    const sorted = same
+      .map(t => {
+        const mo = (now.getFullYear() - t.year) * 12 + (now.getMonth() + 1 - t.month);
+        return (t.price * 10000 / t.area) * Math.pow(1.03, mo / 12);
+      })
+      .sort((a, b) => a - b);
+    // IQR 이상치 제거
+    const q1 = sorted[Math.floor(sorted.length * 0.25)];
+    const q3 = sorted[Math.floor(sorted.length * 0.75)];
+    const iqr = q3 - q1;
+    const clean = sorted.filter(v => v >= q1 - 1.5 * iqr && v <= q3 + 1.5 * iqr);
+    return { ppSqm: Math.round(clean[Math.floor(clean.length / 2)]), sampleCount: same.length, source: 'transaction' };
+  } catch { return null; }
+}
+
+async function handleConfig(req, res) {
+  send(res, 200, {
+    tossClientKey: process.env.TOSS_CLIENT_KEY || '',
+    changeAnalysisPrice: Number(process.env.CHANGE_ANALYSIS_PRICE) || 9900,
+  });
+}
+
+async function handleChangeAnalysis(req, res) {
+  const body = await readBody(req);
+  const { pnu, dongCode10, currentJibun, targetJibun, area,
+          currentPpSqm, currentTotalPrice,
+          paymentKey, orderId, amount } = body;
+
+  if (!pnu || !targetJibun || !area) {
+    return send(res, 400, { error: 'pnu, targetJibun, area 필드가 필요합니다.' });
+  }
+  if (!paymentKey || !orderId || !amount) {
+    return send(res, 400, { error: '결제 정보가 필요합니다.' });
+  }
+
+  // 결제 검증
+  try {
+    const auth = Buffer.from(process.env.TOSS_SECRET_KEY + ':').toString('base64');
+    const pr = await fetch('https://api.tosspayments.com/v1/payments/confirm', {
+      method: 'POST',
+      headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paymentKey, orderId, amount: Number(amount) }),
+    });
+    const pd = await pr.json();
+    if (!pr.ok) return send(res, 402, { error: '결제 검증 실패: ' + (pd.message || pd.code) });
+  } catch (e) {
+    return send(res, 500, { error: '결제 서버 오류: ' + e.message });
+  }
+
+  // 목표 지목 가격 산정
+  let targetPpSqm, priceSource, sampleCount = 0;
+  const txnResult = await getTargetJibunPpSqm(dongCode10 || pnu.slice(0, 10), targetJibun);
+
+  if (txnResult) {
+    targetPpSqm = txnResult.ppSqm;
+    sampleCount  = txnResult.sampleCount;
+    priceSource  = '인근 실거래 사례 중앙값 (시점수정 적용)';
+  } else {
+    // fallback: 배율표 적용
+    const fromRatio = JIBUN_RATIO_TO_DANJI[currentJibun] || 0.18;
+    const toRatio   = JIBUN_RATIO_TO_DANJI[targetJibun]  || 1.0;
+    const ratio     = toRatio / fromRatio;
+    targetPpSqm = Math.round((currentPpSqm || 0) * ratio);
+    priceSource  = '지목별 가격 배율 적용 (실거래 데이터 부족 — 추정치)';
+  }
+
+  const projectedTotal = Math.round(targetPpSqm * area);
+  const valueIncrease  = projectedTotal - (currentTotalPrice || 0);
+
+  const costKey = getDevCostKey(currentJibun || '', targetJibun);
+  const cost    = DEV_COST[costKey];
+  const devCostMin = Math.round(cost.min * area);
+  const devCostMax = Math.round(cost.max * area);
+  const netGainMin = valueIncrease - devCostMax;
+  const netGainMax = valueIncrease - devCostMin;
+  const roiMin     = devCostMin > 0 ? Math.round((netGainMin / devCostMax) * 100) : null;
+  const roiMax     = devCostMax > 0 ? Math.round((netGainMax / devCostMin) * 100) : null;
+
+  const reportId = `CA-${Date.now()}-${pnu.slice(-6)}`;
+
+  send(res, 200, {
+    reportId,
+    generatedAt: new Date().toISOString(),
+    pnu,
+    area,
+    currentState: {
+      jibun: currentJibun || '확인필요',
+      pricePerSqm: currentPpSqm || 0,
+      totalPrice: currentTotalPrice || 0,
+    },
+    projectedState: {
+      jibun: targetJibun,
+      pricePerSqm: targetPpSqm,
+      totalPrice: projectedTotal,
+      priceSource,
+      sampleCount,
+    },
+    valueChange: {
+      amount: valueIncrease,
+      rate: currentTotalPrice > 0 ? Math.round((valueIncrease / currentTotalPrice) * 100) : null,
+    },
+    developmentCost: {
+      scenario: costKey,
+      items: cost.items,
+      perSqmRange: { min: cost.min, max: cost.max },
+      totalRange: { min: devCostMin, max: devCostMax },
+      note: '지역·현장 조건에 따라 실제 비용은 크게 달라질 수 있습니다. 전문가 견적 필수.',
+    },
+    netGain: { min: netGainMin, max: netGainMax },
+    roi: { min: roiMin, max: roiMax },
+    // 감정평가사 협업 필드 — 추후 어드민에서 업데이트
+    appraiserReview: {
+      status: 'pending',          // pending | in_review | completed
+      reviewer: null,             // { name, licenseNo, firm }
+      reviewedAt: null,
+      opinion: null,              // 감정평가사 공식 의견
+      adjustedValue: null,        // 감정평가사 수정 가격
+      riskFactors: [],            // 현장 조사 위험 요인
+      legalChecks: [],            // 인허가 확인 사항
+      recommendations: [],        // 추천 조치
+      reportFileUrl: null,        // 감정평가서 PDF URL
+      validUntil: null,
+      note: '감정평가사 검토 완료 시 이 항목이 업데이트됩니다.',
+    },
+    disclaimer: '본 분석은 공공데이터 기반 자동 추정치로, 법적 효력이 있는 공식 감정평가서가 아닙니다. 개발 인허가 진행 전 반드시 공인 감정평가사 및 관련 전문가의 현장 조사와 의견을 받으십시오.',
+  });
+}
+
 // ========== 라우터 ==========
 
 const server = http.createServer(async (req, res) => {
@@ -607,6 +770,8 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'POST' && pathname === '/api/analyze')          return handleAnalyze(req, res);
   if (req.method === 'POST' && pathname === '/api/payment/verify')   return handlePaymentVerify(req, res);
   if (req.method === 'POST' && pathname === '/api/valuation')        return handleValuation(req, res);
+  if (req.method === 'POST' && pathname === '/api/change-analysis')  return handleChangeAnalysis(req, res);
+  if (req.method === 'GET'  && pathname === '/api/config')           return handleConfig(req, res);
   if (req.method === 'GET') return serveStatic(req, res);
 
   send(res, 405, { error: 'Method not allowed' });
